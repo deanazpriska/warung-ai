@@ -65,3 +65,7 @@ WarungAI membantu UMKM:
 * Manajemen stok
 * Analisis loyalitas pelanggan
 * Forecasting penjualan lanjutan
+
+## Dokumentasi
+
+- [Diagram Arsitektur](./docs/architecture.md)
