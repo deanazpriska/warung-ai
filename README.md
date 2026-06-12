@@ -66,6 +66,22 @@ WarungAI membantu UMKM:
 * Analisis loyalitas pelanggan
 * Forecasting penjualan lanjutan
 
+## Environment Setup
+
+Buat file .env dan isi:
+
+VITE_GEMINI_API_KEY=...
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+
+## Catatan
+
+Demi keamanan, file .env tidak disertakan dalam repository.
+
+Fitur AI (Gemini API) dan database (Supabase) memerlukan environment variables yang valid untuk dijalankan.
+
+Untuk melihat seluruh fitur aplikasi yang berfungsi, silakan lihat video demo yang disediakan.
+
 ## Dokumentasi
 
 - [Diagram Arsitektur](./docs/architecture.md)
