@@ -66,6 +66,16 @@ WarungAI membantu UMKM:
 * Analisis loyalitas pelanggan
 * Forecasting penjualan lanjutan
 
+## Setup
+
+1. Clone repository
+2. Install dependencies
+npm install
+3. Copy .env.example menjadi .env
+4. Isi environment variables
+5. Jalankan aplikasi
+npm run dev
+
 ## Environment Setup
 
 Buat file .env dan isi:
