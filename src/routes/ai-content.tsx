@@ -47,7 +47,8 @@ function AIContentPage() {
 
   function parseJsonResponse(text: string) {
     const cleaned = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    return JSON.parse(cleaned);
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    return JSON.parse(match ? match[0] : cleaned);
   }
 
   function formatRupiah(value: number) {
@@ -136,6 +137,7 @@ ${aiResult.promosi || ""}
       setImagePreview(previewUrl);
 
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+      console.log("GEMINI KEY CHECK:", import.meta.env.VITE_GEMINI_API_KEY?.slice(0, 10));
 
       const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
@@ -144,7 +146,15 @@ ${aiResult.promosi || ""}
       const imagePart = await fileToGenerativePart(file);
 
       const prompt = `
-Jawab HANYA dalam format JSON valid.
+Kamu adalah AI visual analyst untuk produk UMKM makanan, minuman, fashion, dan kerajinan.
+
+Analisis gambar produk yang diberikan.
+Identifikasi produk seakurat mungkin berdasarkan bentuk, warna, tekstur, dan konteks visual.
+
+Jika gambar menunjukkan makanan seperti dimsum, siomay, bakpao, kue, minuman, dessert, camilan, roti, nasi, atau lauk, sebutkan nama produk yang paling mungkin.
+Jangan menjawab "Produk UMKM Lokal" kecuali gambar benar-benar tidak bisa dikenali.
+
+Jawab HANYA dalam JSON valid berikut:
 
 {
   "namaProduk": "",
@@ -156,43 +166,49 @@ Jawab HANYA dalam format JSON valid.
   "targetPembeli": ""
 }
 
-Tugas:
-Analisis foto produk UMKM ini.
-Buat hasil yang membantu pelaku UMKM menjual produknya.
-
 Aturan:
 - Gunakan bahasa Indonesia.
 - Jangan gunakan markdown.
-- Jangan menulis username, mention, atau nama akun seperti @contoh.
-- Caption promosi harus berupa kalimat promosi siap posting.
-- Deskripsi produk menjelaskan produk secara informatif.
+- Jangan gunakan code block.
+- Jangan menulis penjelasan di luar JSON.
+- Nama produk harus spesifik, misalnya "Dimsum Ayam", "Siomay", "Choco Lava Cake", bukan nama generik.
+- Jika tidak yakin, tulis estimasi terbaik, misalnya "Dimsum" atau "Camilan Kukus".
 - Hashtag maksimal 8 hashtag.
-- Jangan menambahkan penjelasan lain.
-- Hanya JSON valid.
-- Jika produk tidak jelas, buat estimasi terbaik berdasarkan gambar.
 `;
 
       const result = await model.generateContent([prompt, imagePart]);
       const response = result.response.text();
+
+      console.log("SCAN RAW RESPONSE:", response);
+
       const cleanJson = parseJsonResponse(response);
 
-      setScanResult(cleanJson);
+      setScanResult({
+        namaProduk: cleanJson.namaProduk || "Produk belum teridentifikasi",
+        deskripsi: cleanJson.deskripsi || "",
+        captionPromosi: cleanJson.captionPromosi || "",
+        hashtag: cleanJson.hashtag || "",
+        promo: cleanJson.promo || "",
+        harga: cleanJson.harga || "",
+        targetPembeli: cleanJson.targetPembeli || "",
+      });
+
       setScanned(true);
     } catch (error) {
-      console.error(error);
+      console.error("SCAN ERROR:", error);
 
       setScanResult({
-        namaProduk: "Produk UMKM Lokal",
+        namaProduk: "Produk belum berhasil dikenali",
         deskripsi:
-          "Produk lokal berkualitas yang cocok dipromosikan melalui media sosial dengan tampilan menarik dan pesan yang sederhana.",
+          "AI belum berhasil membaca gambar produk dengan akurat. Coba gunakan foto yang lebih jelas, terang, dan menampilkan produk dari jarak dekat.",
         captionPromosi:
-          "Produk lokal pilihan yang siap menemani harimu. Yuk dukung UMKM Indonesia dan coba produknya sekarang!",
+          "Produk pilihan siap menemani harimu. Yuk coba sekarang dan dukung UMKM lokal!",
         hashtag:
-          "#UMKMIndonesia #ProdukLokal #DukungUMKM #WarungAI #BisnisLokal",
+          "#UMKMIndonesia #ProdukLokal #KulinerLokal #DukungUMKM #WarungAI",
         promo:
-          "Buat promo beli 2 lebih hemat atau bundling dengan produk lain untuk meningkatkan penjualan.",
+          "Gunakan promo bundling atau diskon terbatas untuk menarik minat pelanggan.",
         harga:
-          "Sesuaikan dengan modal produk dan harga kompetitor lokal.",
+          "Sesuaikan dengan modal, ukuran porsi, dan harga kompetitor.",
         targetPembeli:
           "Pelanggan lokal, anak muda, mahasiswa, pekerja, dan pengguna media sosial.",
       });
@@ -392,7 +408,7 @@ Aturan:
           <img
             src={imagePreview}
             alt="Preview produk"
-            className="h-56 w-full rounded-3xl object-cover shadow-[var(--shadow-soft)]"
+            className="max-h-[420px] w-full rounded-3xl object-contain bg-white shadow-[var(--shadow-soft)]"
           />
         </section>
       )}
