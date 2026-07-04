@@ -137,7 +137,6 @@ ${aiResult.promosi || ""}
       setImagePreview(previewUrl);
 
       const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-      console.log("GEMINI KEY CHECK:", import.meta.env.VITE_GEMINI_API_KEY?.slice(0, 10));
 
       const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
@@ -398,7 +397,7 @@ Aturan penting:
   } finally {
     setLoading(false);
   }
-}
+}``
 
   return (
     <MobileShell>

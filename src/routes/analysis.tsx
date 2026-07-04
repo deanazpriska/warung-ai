@@ -235,7 +235,7 @@ function getHealthStatus(score: number) {
 
 function AnalysisPage() {
   const [transactions, setTransactions] = useState<Tx[]>([]);
-  const [period, setPeriod] = useState<PeriodType>("thisMonth");
+  const [period, setPeriod] = useState<PeriodType>("all");
   const [loadingData, setLoadingData] = useState(true);
   const [loading, setLoading] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
